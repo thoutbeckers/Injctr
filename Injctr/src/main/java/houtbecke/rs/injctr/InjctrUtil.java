@@ -67,11 +67,29 @@ public class InjctrUtil {
 
     public String constructName(String type, Object name) {
         String simpleName = name.getClass().getSimpleName();
+        return getUnderscoredString(type, simpleName);
+    }
 
-        StringBuilder sb = new StringBuilder(type);
-        for (String part: StringUtils.splitByCharacterTypeCamelCase(simpleName))
-            sb.append("_").append(part.toLowerCase());
-        return sb.toString();
+    private String getUnderscoredString(String type, String simpleName) {
+        return getUnderscoredString(new StringBuilder(type), simpleName).toString();
+    }
+
+    private String getUnderscoredString(String simpleName) {
+        return getUnderscoredString(new StringBuilder(), simpleName).toString();
+    }
+
+    private StringBuilder getUnderscoredString(StringBuilder builder, String simpleName) {
+        for (String part: StringUtils.splitByCharacterTypeCamelCase(simpleName)) {
+            if (builder.length() > 0)
+                builder.append("_");
+            builder.append(part.toLowerCase());
+        }
+        return builder;
+    }
+
+
+    public int getId(String name) {
+        return getResourceIdentifier(getUnderscoredString(name), "id");
     }
 
     public int getResourceIdentifier(String name, String type) {
@@ -108,9 +126,6 @@ public class InjctrUtil {
             else
                 styleableInfo = getStyleable(clazz.getSimpleName());
 
-            if (styleableInfo == null || styleableInfo.styleable == null)
-                continue;
-
             Map<Integer, Field> styleableFieldMap = null;
 
             for (Field field: clazz.getDeclaredFields()) {
@@ -119,17 +134,17 @@ public class InjctrUtil {
                 Annotation[] annotations = field.getDeclaredAnnotations();
                 for (Annotation a: annotations) {
                     Class anonClass = a.annotationType();
-                    if (rootView != null && anonClass == houtbecke.rs.injctr.View.class && fieldClass.isAssignableFrom(android.view.View.class)) {
+                    if (rootView != null && anonClass == houtbecke.rs.injctr.View.class && android.view.View.class.isAssignableFrom(fieldClass)) {
                         houtbecke.rs.injctr.View viewAnon = (houtbecke.rs.injctr.View) a;
                         View view = rootView;
                         for (int parent: viewAnon.parents())
                             view = view.findViewById(parent);
                         int viewId = viewAnon.value();
                         if (viewId == -1)
-                            viewId = getResourceIdentifier(field.getName(), "view");
+                            viewId = getId(field.getName());
                         view = view.findViewById(viewId);
                         setField(field, injctrObject, view);
-                    } else if (styleables == null) {
+                    } else if (styleables == null|| styleableInfo.styleable == null) {
                         // do nothing
                     }
                     else if (anonClass == Attr.class)
@@ -272,7 +287,7 @@ public class InjctrUtil {
 
     private void setField(Field field, Object object, Object value) {
         boolean changed = false;
-        if (field.isAccessible())
+        if (!field.isAccessible())
             field.setAccessible(changed = true);
         try {
             field.set(object, value);

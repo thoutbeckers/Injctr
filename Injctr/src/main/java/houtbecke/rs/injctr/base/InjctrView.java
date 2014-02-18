@@ -41,11 +41,6 @@ public abstract class InjctrView extends RelativeLayout {
 
     /**
      * This is called right after the layout of this view is loaded.
-     *
-     * Override this to do things like View injection from RoboGuice:
-     *
-     * RoboGuice.getInjector(context).injectViewMembers((Activity) context);
-     *
      */
     protected void afterLayout() {}
 
@@ -62,7 +57,8 @@ public abstract class InjctrView extends RelativeLayout {
 
         afterLayout();
 
-        injctrUtil.injctrView(this, context, attrs);
+        if (!isInEditMode())
+            injctrUtil.injctrView(this, context, attrs);
 
         afterInit();
     }
