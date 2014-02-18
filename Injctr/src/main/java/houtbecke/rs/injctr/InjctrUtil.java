@@ -119,9 +119,9 @@ public class InjctrUtil {
             if (clazz.isAnnotationPresent(Styleable.class)) {
                 Styleable styleableAnnotation = (Styleable) clazz.getAnnotation(Styleable.class); // android studio wtf
                 if ("".equals(styleableAnnotation.packageName()))
-                    getStyleable(styleableAnnotation.value());
+                    styleableInfo = getStyleable(styleableAnnotation.value());
                 else
-                    getStyleable(styleableAnnotation.packageName(), styleableAnnotation.value());
+                    styleableInfo = getStyleable(styleableAnnotation.packageName(), styleableAnnotation.value());
             }
             else
                 styleableInfo = getStyleable(clazz.getSimpleName());
@@ -144,7 +144,7 @@ public class InjctrUtil {
                             viewId = getId(field.getName());
                         view = view.findViewById(viewId);
                         setField(field, injctrObject, view);
-                    } else if (styleables == null|| styleableInfo.styleable == null) {
+                    } else if (styleables == null || styleableInfo == null || styleableInfo.styleable == null) {
                         // do nothing
                     }
                     else if (anonClass == Attr.class)
