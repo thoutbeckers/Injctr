@@ -57,8 +57,7 @@ public abstract class InjctrView extends RelativeLayout {
 
         afterLayout();
 
-        if (!isInEditMode())
-            injctrUtil.injctrView(this, context, attrs);
+        injctrUtil.injctrView(this, context, attrs);
 
         afterInit();
     }
