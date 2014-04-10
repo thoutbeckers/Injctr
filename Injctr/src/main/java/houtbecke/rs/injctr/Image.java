@@ -10,7 +10,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ ElementType.TYPE })
 public @interface Image {
     int value() default -1;
-
-
-
 }

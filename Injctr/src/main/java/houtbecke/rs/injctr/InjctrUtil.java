@@ -66,13 +66,13 @@ public class InjctrUtil {
     }
 
     public int getFragmentImage(Fragment fragment) {
-        int fragmentLevel = -1;
+        int fragmentImage = -1;
         if (fragment.getClass().isAnnotationPresent(Image.class)) {
             Image image = fragment.getClass().getAnnotation(Image.class);
-            fragmentLevel = image.value();
+            fragmentImage = image.value();
 
         }
-        return fragmentLevel;
+        return fragmentImage;
     }
 
     public int getFragmentLayout(Fragment fragment) {
