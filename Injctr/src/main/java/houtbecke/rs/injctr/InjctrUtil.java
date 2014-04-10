@@ -53,7 +53,26 @@ public class InjctrUtil {
             if ("".equals(fragmentTitle) && title.value() != 0)
                 fragmentTitle = resources.getString(title.value());
         }
-    return fragmentTitle;
+        return fragmentTitle;
+    }
+
+    public int getFragmentLevel(Fragment fragment) {
+        int fragmentLevel = 0;
+        if (fragment.getClass().isAnnotationPresent(Level.class)) {
+            Level level = fragment.getClass().getAnnotation(Level.class);
+            fragmentLevel = level.value();
+        }
+        return fragmentLevel;
+    }
+
+    public int getFragmentImage(Fragment fragment) {
+        int fragmentLevel = -1;
+        if (fragment.getClass().isAnnotationPresent(Image.class)) {
+            Image image = fragment.getClass().getAnnotation(Image.class);
+            fragmentLevel = image.value();
+
+        }
+        return fragmentLevel;
     }
 
     public int getFragmentLayout(Fragment fragment) {
