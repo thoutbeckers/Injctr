@@ -1,5 +1,6 @@
 package houtbecke.rs.injctr;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -119,6 +120,7 @@ public class InjctrUtil {
         injctr(activity, activity, null, activity.getWindow().getDecorView());
     }
 
+    @TargetApi(11)
     public void injctrFragment(Fragment fragment) {
         injctr(fragment.getActivity(), fragment, null, fragment.getView());
     }
