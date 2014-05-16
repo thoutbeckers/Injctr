@@ -336,14 +336,20 @@ public class InjctrUtil {
     public final StyleableInfo getStyleable(String packageName, String name)
     {
         try {
-            Field[] fields = Class.forName(packageName + ".R$styleable").getFields();
+            Field[] fields;
+            try {
+                 fields = Class.forName(packageName + ".R$styleable").getFields();
+            } catch (ClassNotFoundException cnf) {
+                // it's possible that we are in a packageNameSuffix build, which seems to still build styleable under the regular package :$
+                packageName = packageName.substring(0, packageName.lastIndexOf('.'));
+                fields = Class.forName( packageName+ ".R$styleable").getFields();
+            }
+
 
             StyleableInfo styleableInfo = new StyleableInfo();
             for (Field field : fields) {
                 String fieldName = field.getName();
                 if (fieldName.startsWith(name)) {
-                    if (styleableInfo == null)
-                        styleableInfo = new StyleableInfo();
 
                     if (fieldName.equals(name))
                         styleableInfo.styleable = (int[])field.get(null);
@@ -352,8 +358,8 @@ public class InjctrUtil {
                 }
             }
             return styleableInfo;
-        } catch (ClassNotFoundException e) {
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | ClassNotFoundException ignore) {
+            // at this point we just assume reflection has failed us to find the styleables.
         }
         return null;
     }
