@@ -1,12 +1,8 @@
-language: java
+language: android
 
 env:
     global:
     - TERM=dumb
-
-before_install:
-    - sudo apt-get update -qq
-    - sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
 
 after_success:
     - ./gradlew jacocoTestReport
