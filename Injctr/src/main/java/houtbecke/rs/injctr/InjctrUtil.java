@@ -353,8 +353,8 @@ public class InjctrUtil {
 
                     if (fieldName.equals(name))
                         styleableInfo.styleable = (int[])field.get(null);
-                    else
-                        styleableInfo.nameValueMap.put(fieldName.substring(name.length()+1), field.getInt(null));
+//                    else
+//                        styleableInfo.nameValueMap.put(fieldName.substring(name.length()+1), field.getInt(null));
                 }
             }
             return styleableInfo;

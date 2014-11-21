@@ -2,12 +2,12 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
-        minSdkVersion 4
-        targetSdkVersion 19
+        minSdkVersion 7
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -28,10 +28,10 @@ android {
 dependencies {
 //    compile 'com.android.support:appcompat-v7:+'
 //    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-
+    compile 'com.android.support:appcompat-v7:21.+'
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'javax.inject:javax.inject:1'
-    provided ('org.roboguice:roboguice:2.0') {
+    provided ('org.roboguice:roboguice:3.0.1') {
         exclude group:"aopalliance"
         exclude group:"cglib"
         exclude group:"org.ow2.asm"
