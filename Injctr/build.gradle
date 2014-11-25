@@ -33,7 +33,7 @@ android {
 
 dependencies {
 //    compile 'com.android.support:appcompat-v7:+'
-    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+//    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     compile 'com.android.support:appcompat-v7:21.0.2'
 
     compile 'org.apache.commons:commons-lang3:3.1'
