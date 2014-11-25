@@ -25,8 +25,7 @@ android {
     }
 
     lintOptions {
-        disable 'GradleDependency', 'InvalidPackage'
-
+        disable 'InvalidPackage'
     }
 
 
@@ -34,18 +33,17 @@ android {
 
 dependencies {
 //    compile 'com.android.support:appcompat-v7:+'
-//    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     compile 'com.android.support:appcompat-v7:21.0.2'
 
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile 'javax.inject:javax.inject:1'
+//    compile 'javax.inject:javax.inject:1'
     provided ('org.roboguice:roboguice:3.0.1') {
         exclude group:"aopalliance"
         exclude group:"cglib"
         exclude group:"org.ow2.asm"
         exclude group:"asm"
     }
-    provided 'org.roboguice:roboblender:3.0'
 
 
 
