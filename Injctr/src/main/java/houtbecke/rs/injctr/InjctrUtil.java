@@ -24,6 +24,7 @@ import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -201,7 +202,7 @@ public class InjctrUtil {
 
                 if (styleableId >= 0) {
                     if (styleableFieldMap == null)
-                        styleableFieldMap = new HashMap<Integer, Field>();
+                        styleableFieldMap = new HashMap<>();
                     styleableFieldMap.put(styleableId, field);
                 }
             }
@@ -322,7 +323,7 @@ public class InjctrUtil {
 
     public static class StyleableInfo {
         public int[] styleable;
-        private Map<String, Integer> nameValueMap = new HashMap<String, Integer>();
+        private Map<String, Integer> nameValueMap = new HashMap<>();
         public int attribute(String name) {
             Integer ret = nameValueMap.get(name);
             return ret != null ? ret: -1; // who else miss the king ?:
@@ -353,8 +354,10 @@ public class InjctrUtil {
 
                     if (fieldName.equals(name))
                         styleableInfo.styleable = (int[])field.get(null);
-//                    else
-//                        styleableInfo.nameValueMap.put(fieldName.substring(name.length()+1), field.getInt(null));
+                    else {
+                        int val = field.getType().isArray() ?  ((int[]) field.get(null))[0] : field.getInt(null);
+                        styleableInfo.nameValueMap.put(fieldName.substring(name.length() + 1), val);
+                    }
                 }
             }
             return styleableInfo;
