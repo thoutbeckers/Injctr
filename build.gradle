@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'org.apache.httpcomponents:httpmime:4.3'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.4.0'
-        classpath 'com.android.tools.build:gradle:0.14.+'
+        classpath 'com.android.tools.build:gradle:1.0.1'
         // replaced until release
         // classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.10.2'
         classpath 'org.rauschig:jarchivelib:0.6.0'
