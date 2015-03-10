@@ -11,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,12 +23,9 @@ import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -334,18 +330,31 @@ public class InjctrUtil {
         return getStyleable(context.getPackageName(), name);
     }
 
-    public final StyleableInfo getStyleable(String packageName, String name)
-    {
+    static Map<String, Field[]> styleableFieldsCache = new HashMap<>();
+    static Map<String, StyleableInfo> styleableInfoCache = new HashMap<>();
+
+    public final StyleableInfo getStyleable(String packageName, String name) {
+        final String styleableInfoKey = packageName+"."+name;
+        if (styleableInfoCache.containsKey(styleableInfoKey))
+            return styleableInfoCache.get(styleableInfoKey);
+
         try {
             Field[] fields;
+            String className;
             try {
-                 fields = Class.forName(packageName + ".R$styleable").getFields();
+                className =  packageName + ".R$styleable";
+                fields = styleableFieldsCache.get(className);
+                if (fields == null) fields = Class.forName(className).getFields();
+
             } catch (ClassNotFoundException cnf) {
                 // it's possible that we are in a packageNameSuffix build, which seems to still build styleable under the regular package :$
                 packageName = packageName.substring(0, packageName.lastIndexOf('.'));
-                fields = Class.forName( packageName+ ".R$styleable").getFields();
+                className = packageName+ ".R$styleable";
+                fields = styleableFieldsCache.get(className);
+                if (fields == null) fields = Class.forName(className).getFields();
             }
 
+            styleableFieldsCache.put(className, fields);
 
             StyleableInfo styleableInfo = new StyleableInfo();
             for (Field field : fields) {
@@ -360,10 +369,12 @@ public class InjctrUtil {
                     }
                 }
             }
+            styleableInfoCache.put(styleableInfoKey, styleableInfo);
             return styleableInfo;
         } catch (IllegalAccessException | ClassNotFoundException ignore) {
             // at this point we just assume reflection has failed us to find the styleables.
         }
+        styleableInfoCache.put(styleableInfoKey, null);
         return null;
     }
 
