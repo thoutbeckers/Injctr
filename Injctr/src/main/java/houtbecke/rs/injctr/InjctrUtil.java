@@ -42,6 +42,24 @@ public class InjctrUtil {
         this.resources = resources;
     }
 
+    public String getFragmentTitle(String prefix, Fragment fragment) {
+        String fragmentTitle = "";
+
+        if (fragment.getClass().isAnnotationPresent(Title.class)) {
+            Title title = fragment.getClass().getAnnotation(Title.class);
+            fragmentTitle = title.string();
+            if ("".equals(fragmentTitle) && title.value() != 0)
+                fragmentTitle = resources.getString(title.value());
+            else if ("".equals(fragmentTitle) && title.value() == 0) {
+                int res = getResourceIdentifier(prefix+" "+fragment.getClass().getSimpleName(), "string");
+                if (res != 0)
+                    return resources.getString(res);
+            }
+        }
+        return fragmentTitle;
+    }
+
+
     public String getFragmentTitle(Fragment fragment) {
         String fragmentTitle = "";
 
@@ -126,6 +144,11 @@ public class InjctrUtil {
         injctr(styledContext, view, attrs, view);
     }
 
+    public void injctrRes(Object injctrObject) {
+        injctr(context, injctrObject, null, null);
+
+    }
+
     public void injctr(Context styledContext, Object injctrObject, AttributeSet attrs, View rootView) {
 
         // Styleables can differ per class so they need a second layer in the hierarchy
@@ -133,9 +156,9 @@ public class InjctrUtil {
 
         Class clazz = injctrObject.getClass();
         while (clazz != InjctrView.class && clazz != null) {
-            StyleableInfo styleableInfo = null;
+            StyleableInfo styleableInfo;
             if (clazz.isAnnotationPresent(Styleable.class)) {
-                Styleable styleableAnnotation = (Styleable) clazz.getAnnotation(Styleable.class); // android studio wtf
+                Styleable styleableAnnotation = (Styleable) clazz.getAnnotation(Styleable.class);
                 if ("".equals(styleableAnnotation.packageName()))
                     styleableInfo = getStyleable(styleableAnnotation.value());
                 else
@@ -191,6 +214,13 @@ public class InjctrUtil {
                         styleableId = field.getAnnotation(AttrString.class).value();
                     else if (anonClass == AttrText.class)
                         styleableId = field.getAnnotation(AttrText.class).value();
+
+
+                    else if (anonClass == ResString.class) {
+                        int id = ((ResString)a).value();
+                        id = id != -1 ? id : getResourceIdentifier(getUnderscoredString(field.getName()), "string");
+                        setField(field, injctrObject, resources.getString(id));
+                    }
 
                     if (styleableId == -1)
                         styleableId = styleableInfo.attribute(field.getName());
@@ -380,13 +410,20 @@ public class InjctrUtil {
 
     public int getLayout(Object object, String type) {
         if (object.getClass().isAnnotationPresent(Layout.class)) {
-            Layout title = object.getClass().getAnnotation(Layout.class);
-            if (title.value() != 0)
-                return title.value();
+            Layout layout = object.getClass().getAnnotation(Layout.class);
+            if (layout.value() != 0)
+                return layout.value();
 
         }
         String name = constructName(type, object);
         return getResourceIdentifier(name, "layout");
+    }
+
+    public int getStringId(String type, Object object, String... postFixes) {
+        String name = constructName(type, object);
+        for (String postfix: postFixes)
+            name+="_"+postfix;
+        return getResourceIdentifier(name, "string");
     }
 
 

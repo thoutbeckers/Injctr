@@ -11,7 +11,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Title {
     int value() default 0;
     String string() default "";
-
-
-
 }

@@ -7,11 +7,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-@Target({ ElementType.TYPE })
-public @interface DialogMainText {
-    int value();
-    String string() default "";
-
-
-
+@Target(ElementType.FIELD)
+public @interface ResString {
+    int value() default -1;
 }
