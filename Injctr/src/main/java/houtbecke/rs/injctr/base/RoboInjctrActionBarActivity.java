@@ -1,5 +1,6 @@
 package houtbecke.rs.injctr.base;
 
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,6 +15,14 @@ public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
     protected InjctrUtil injctrUtil;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        int layout = injctrUtil.getLayout(this, "activity");
+        if (layout > 0)
+            setContentView(layout);
+    }
+
+    @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         afterContentView();
@@ -21,6 +30,7 @@ public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
 
     @Override
     public void setContentView(View view) {
+        beforeContentView();
         super.setContentView(view);
         afterContentView();
     }
@@ -30,6 +40,8 @@ public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
         super.setContentView(view, params);
         afterContentView();
     }
+
+    protected void beforeContentView() {}
 
     protected void afterContentView() {
         if (injctrUtil == null)

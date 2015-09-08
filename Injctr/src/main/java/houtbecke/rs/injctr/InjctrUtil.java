@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -82,12 +83,14 @@ public class InjctrUtil {
         return getLayout(v, "view");
     }
 
-    public String constructName(String type, Object name) {
+    public static String constructName(String type, Object name) {
         String simpleName = name.getClass().getSimpleName();
+        if (simpleName.toLowerCase(Locale.ENGLISH).endsWith(type))
+            simpleName = simpleName.substring(0, simpleName.length() - type.length());
         return getUnderscoredString(type, simpleName);
     }
 
-    private String getUnderscoredString(String type, String simpleName) {
+    private static String getUnderscoredString(String type, String simpleName) {
         return getUnderscoredString(new StringBuilder(type), simpleName).toString();
     }
 
@@ -95,7 +98,7 @@ public class InjctrUtil {
         return getUnderscoredString(new StringBuilder(), simpleName).toString();
     }
 
-    private StringBuilder getUnderscoredString(StringBuilder builder, String simpleName) {
+    private static StringBuilder getUnderscoredString(StringBuilder builder, String simpleName) {
         for (String part: StringUtils.splitByCharacterTypeCamelCase(simpleName)) {
             if (builder.length() > 0)
                 builder.append("_");
@@ -110,6 +113,10 @@ public class InjctrUtil {
     }
 
     public int getResourceIdentifier(String name, String type) {
+        return getResourceIdentifier(context, resources, name, type);
+    }
+
+    public static int getResourceIdentifier(Context context, Resources resources, String name, String type) {
         return resources.getIdentifier(name, type, context.getPackageName()) ;
     }
 
@@ -155,13 +162,18 @@ public class InjctrUtil {
                     if (rootView != null && anonClass == houtbecke.rs.injctr.View.class && android.view.View.class.isAssignableFrom(fieldClass)) {
                         houtbecke.rs.injctr.View viewAnon = (houtbecke.rs.injctr.View) a;
                         View view = rootView;
-                        for (int parent: viewAnon.parents())
+                        for (int parent : viewAnon.parents())
                             view = view.findViewById(parent);
                         int viewId = viewAnon.value();
                         if (viewId == -1)
                             viewId = getId(field.getName());
                         view = view.findViewById(viewId);
                         setField(field, injctrObject, view);
+
+                    } else if (anonClass == ResString.class) {
+                        int id = ((ResString)a).value();
+                        id = id != -1 ? id : getResourceIdentifier(getUnderscoredString(field.getName()), "string");
+                        setField(field, injctrObject, resources.getString(id));
                     } else if (styleables == null || styleableInfo == null || styleableInfo.styleable == null) {
                         // do nothing
                     }
@@ -379,6 +391,10 @@ public class InjctrUtil {
     }
 
     public int getLayout(Object object, String type) {
+        return getLayout(context, resources, object, type);
+    }
+
+    public static int getLayout(Context context, Resources resources, Object object, String type) {
         if (object.getClass().isAnnotationPresent(Layout.class)) {
             Layout title = object.getClass().getAnnotation(Layout.class);
             if (title.value() != 0)
@@ -386,7 +402,7 @@ public class InjctrUtil {
 
         }
         String name = constructName(type, object);
-        return getResourceIdentifier(name, "layout");
+        return getResourceIdentifier(context, resources, name, "layout");
     }
 
 
