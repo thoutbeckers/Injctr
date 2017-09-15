@@ -21,7 +21,7 @@ public class InjctrDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(getActivity(), getActivity().getResources());
+            injctrUtil = new InjctrUtil(getActivity().getApplicationContext(), getActivity().getResources());
 
         int viewId = injctrUtil.getFragmentLayout(this);
 

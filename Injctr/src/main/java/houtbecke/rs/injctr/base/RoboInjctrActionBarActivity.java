@@ -45,7 +45,7 @@ public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
 
     protected void afterContentView() {
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(this, getResources());
+            injctrUtil = new InjctrUtil(getApplicationContext(), getResources());
 
         injctrUtil.injctrActivity(this);
     }

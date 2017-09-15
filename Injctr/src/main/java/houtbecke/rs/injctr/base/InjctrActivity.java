@@ -42,7 +42,7 @@ public class InjctrActivity extends Activity {
 
     protected void afterContentView() {
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(this, getResources());
+            injctrUtil = new InjctrUtil(getApplicationContext(), getResources());
 
         injctrUtil.injctrActivity(this);
     }

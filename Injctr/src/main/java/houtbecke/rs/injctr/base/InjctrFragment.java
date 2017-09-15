@@ -22,7 +22,7 @@ public class InjctrFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(getActivity(), getActivity().getResources());
+            injctrUtil = new InjctrUtil(getActivity().getApplicationContext(), getActivity().getResources());
 
         int viewId = injctrUtil.getFragmentLayout(this);
         View view;
