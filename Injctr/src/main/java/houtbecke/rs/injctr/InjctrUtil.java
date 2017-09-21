@@ -1,5 +1,6 @@
 package houtbecke.rs.injctr;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -10,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,9 +25,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -44,6 +43,24 @@ public class InjctrUtil {
         this.resources = resources;
     }
 
+    public String getFragmentTitle(String prefix, Fragment fragment) {
+        String fragmentTitle = "";
+
+        if (fragment.getClass().isAnnotationPresent(Title.class)) {
+            Title title = fragment.getClass().getAnnotation(Title.class);
+            fragmentTitle = title.string();
+            if ("".equals(fragmentTitle) && title.value() != 0)
+                fragmentTitle = resources.getString(title.value());
+            else if ("".equals(fragmentTitle) && title.value() == 0) {
+                int res = getResourceIdentifier(prefix+" "+fragment.getClass().getSimpleName(), "string");
+                if (res != 0)
+                    return resources.getString(res);
+            }
+        }
+        return fragmentTitle;
+    }
+
+
     public String getFragmentTitle(Fragment fragment) {
         String fragmentTitle = "";
 
@@ -53,7 +70,26 @@ public class InjctrUtil {
             if ("".equals(fragmentTitle) && title.value() != 0)
                 fragmentTitle = resources.getString(title.value());
         }
-    return fragmentTitle;
+        return fragmentTitle;
+    }
+
+    public int getFragmentLevel(Fragment fragment) {
+        int fragmentLevel = 0;
+        if (fragment.getClass().isAnnotationPresent(Level.class)) {
+            Level level = fragment.getClass().getAnnotation(Level.class);
+            fragmentLevel = level.value();
+        }
+        return fragmentLevel;
+    }
+
+    public int getFragmentImage(Fragment fragment) {
+        int fragmentImage = -1;
+        if (fragment.getClass().isAnnotationPresent(Image.class)) {
+            Image image = fragment.getClass().getAnnotation(Image.class);
+            fragmentImage = image.value();
+
+        }
+        return fragmentImage;
     }
 
     public int getFragmentLayout(Fragment fragment) {
@@ -65,12 +101,14 @@ public class InjctrUtil {
         return getLayout(v, "view");
     }
 
-    public String constructName(String type, Object name) {
+    public static String constructName(String type, Object name) {
         String simpleName = name.getClass().getSimpleName();
+        if (simpleName.toLowerCase(Locale.ENGLISH).endsWith(type))
+            simpleName = simpleName.substring(0, simpleName.length() - type.length());
         return getUnderscoredString(type, simpleName);
     }
 
-    private String getUnderscoredString(String type, String simpleName) {
+    private static String getUnderscoredString(String type, String simpleName) {
         return getUnderscoredString(new StringBuilder(type), simpleName).toString();
     }
 
@@ -78,7 +116,7 @@ public class InjctrUtil {
         return getUnderscoredString(new StringBuilder(), simpleName).toString();
     }
 
-    private StringBuilder getUnderscoredString(StringBuilder builder, String simpleName) {
+    private static StringBuilder getUnderscoredString(StringBuilder builder, String simpleName) {
         for (String part: StringUtils.splitByCharacterTypeCamelCase(simpleName)) {
             if (builder.length() > 0)
                 builder.append("_");
@@ -93,6 +131,10 @@ public class InjctrUtil {
     }
 
     public int getResourceIdentifier(String name, String type) {
+        return getResourceIdentifier(context, resources, name, type);
+    }
+
+    public static int getResourceIdentifier(Context context, Resources resources, String name, String type) {
         return resources.getIdentifier(name, type, context.getPackageName()) ;
     }
 
@@ -100,12 +142,18 @@ public class InjctrUtil {
         injctr(activity, activity, null, activity.getWindow().getDecorView());
     }
 
+    @TargetApi(11)
     public void injctrFragment(Fragment fragment) {
         injctr(fragment.getActivity(), fragment, null, fragment.getView());
     }
 
     public void injctrView(View view, Context styledContext, AttributeSet attrs) {
         injctr(styledContext, view, attrs, view);
+    }
+
+    public void injctrRes(Object injctrObject) {
+        injctr(context, injctrObject, null, null);
+
     }
 
     public void injctr(Context styledContext, Object injctrObject, AttributeSet attrs, View rootView) {
@@ -115,9 +163,9 @@ public class InjctrUtil {
 
         Class clazz = injctrObject.getClass();
         while (clazz != InjctrView.class && clazz != null) {
-            StyleableInfo styleableInfo = null;
+            StyleableInfo styleableInfo;
             if (clazz.isAnnotationPresent(Styleable.class)) {
-                Styleable styleableAnnotation = (Styleable) clazz.getAnnotation(Styleable.class); // android studio wtf
+                Styleable styleableAnnotation = (Styleable) clazz.getAnnotation(Styleable.class);
                 if ("".equals(styleableAnnotation.packageName()))
                     styleableInfo = getStyleable(styleableAnnotation.value());
                 else
@@ -137,13 +185,18 @@ public class InjctrUtil {
                     if (rootView != null && anonClass == houtbecke.rs.injctr.View.class && android.view.View.class.isAssignableFrom(fieldClass)) {
                         houtbecke.rs.injctr.View viewAnon = (houtbecke.rs.injctr.View) a;
                         View view = rootView;
-                        for (int parent: viewAnon.parents())
+                        for (int parent : viewAnon.parents())
                             view = view.findViewById(parent);
                         int viewId = viewAnon.value();
                         if (viewId == -1)
                             viewId = getId(field.getName());
                         view = view.findViewById(viewId);
                         setField(field, injctrObject, view);
+
+                    } else if (anonClass == ResString.class) {
+                        int id = ((ResString)a).value();
+                        id = id != -1 ? id : getResourceIdentifier(getUnderscoredString(field.getName()), "string");
+                        setField(field, injctrObject, resources.getString(id));
                     } else if (styleables == null || styleableInfo == null || styleableInfo.styleable == null) {
                         // do nothing
                     }
@@ -174,13 +227,20 @@ public class InjctrUtil {
                     else if (anonClass == AttrText.class)
                         styleableId = field.getAnnotation(AttrText.class).value();
 
+
+                    else if (anonClass == ResString.class) {
+                        int id = ((ResString)a).value();
+                        id = id != -1 ? id : getResourceIdentifier(getUnderscoredString(field.getName()), "string");
+                        setField(field, injctrObject, resources.getString(id));
+                    }
+
                     if (styleableId == -1)
                         styleableId = styleableInfo.attribute(field.getName());
                 }
 
                 if (styleableId >= 0) {
                     if (styleableFieldMap == null)
-                        styleableFieldMap = new HashMap<Integer, Field>();
+                        styleableFieldMap = new HashMap<>();
                     styleableFieldMap.put(styleableId, field);
                 }
             }
@@ -301,7 +361,7 @@ public class InjctrUtil {
 
     public static class StyleableInfo {
         public int[] styleable;
-        private Map<String, Integer> nameValueMap = new HashMap<String, Integer>();
+        private Map<String, Integer> nameValueMap = new HashMap<>();
         public int attribute(String name) {
             Integer ret = nameValueMap.get(name);
             return ret != null ? ret: -1; // who else miss the king ?:
@@ -312,40 +372,74 @@ public class InjctrUtil {
         return getStyleable(context.getPackageName(), name);
     }
 
-    public final StyleableInfo getStyleable(String packageName, String name)
-    {
+    static Map<String, Field[]> styleableFieldsCache = new HashMap<>();
+    static Map<String, StyleableInfo> styleableInfoCache = new HashMap<>();
+
+    public final StyleableInfo getStyleable(String packageName, String name) {
+        final String styleableInfoKey = packageName+"."+name;
+        if (styleableInfoCache.containsKey(styleableInfoKey))
+            return styleableInfoCache.get(styleableInfoKey);
+
         try {
-            Field[] fields = Class.forName(packageName + ".R$styleable").getFields();
+            Field[] fields;
+            String className;
+            try {
+                className =  packageName + ".R$styleable";
+                fields = styleableFieldsCache.get(className);
+                if (fields == null) fields = Class.forName(className).getFields();
+
+            } catch (ClassNotFoundException cnf) {
+                // it's possible that we are in a packageNameSuffix build, which seems to still build styleable under the regular package :$
+                packageName = packageName.substring(0, packageName.lastIndexOf('.'));
+                className = packageName+ ".R$styleable";
+                fields = styleableFieldsCache.get(className);
+                if (fields == null) fields = Class.forName(className).getFields();
+            }
+
+            styleableFieldsCache.put(className, fields);
 
             StyleableInfo styleableInfo = new StyleableInfo();
             for (Field field : fields) {
                 String fieldName = field.getName();
                 if (fieldName.startsWith(name)) {
-                    if (styleableInfo == null)
-                        styleableInfo = new StyleableInfo();
 
                     if (fieldName.equals(name))
                         styleableInfo.styleable = (int[])field.get(null);
-                    else
-                        styleableInfo.nameValueMap.put(fieldName.substring(name.length()+1), field.getInt(null));
+                    else {
+                        int val = field.getType().isArray() ?  ((int[]) field.get(null))[0] : field.getInt(null);
+                        styleableInfo.nameValueMap.put(fieldName.substring(name.length() + 1), val);
+                    }
                 }
             }
+            styleableInfoCache.put(styleableInfoKey, styleableInfo);
             return styleableInfo;
-        } catch (ClassNotFoundException e) {
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | ClassNotFoundException ignore) {
+            // at this point we just assume reflection has failed us to find the styleables.
         }
+        styleableInfoCache.put(styleableInfoKey, null);
         return null;
     }
 
     public int getLayout(Object object, String type) {
+        return getLayout(context, resources, object, type);
+    }
+
+    public static int getLayout(Context context, Resources resources, Object object, String type) {
         if (object.getClass().isAnnotationPresent(Layout.class)) {
-            Layout title = object.getClass().getAnnotation(Layout.class);
-            if (title.value() != 0)
-                return title.value();
+            Layout layout = object.getClass().getAnnotation(Layout.class);
+            if (layout.value() != 0)
+                return layout.value();
 
         }
         String name = constructName(type, object);
-        return getResourceIdentifier(name, "layout");
+        return getResourceIdentifier(context, resources, name, "layout");
+    }
+
+    public int getStringId(String type, Object object, String... postFixes) {
+        String name = constructName(type, object);
+        for (String postfix: postFixes)
+            name+="_"+postfix;
+        return getResourceIdentifier(name, "string");
     }
 
 

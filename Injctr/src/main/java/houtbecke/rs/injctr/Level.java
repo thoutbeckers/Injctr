@@ -8,7 +8,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface Title {
+public @interface Level {
     int value() default 0;
-    String string() default "";
 }

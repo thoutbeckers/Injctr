@@ -7,8 +7,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-@Target({ ElementType.TYPE })
-public @interface Title {
-    int value() default 0;
-    String string() default "";
+@Target(ElementType.FIELD)
+public @interface ResString {
+    int value() default -1;
 }

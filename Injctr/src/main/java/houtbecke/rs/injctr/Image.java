@@ -8,7 +8,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface Title {
-    int value() default 0;
-    String string() default "";
+public @interface Image {
+    int value() default -1;
 }

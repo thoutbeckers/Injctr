@@ -2,15 +2,19 @@
 
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath "org.apache.httpcomponents:httpmime:${httpmimeVersion}"
+        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:${coverallsGradlePluginVersion}"
+        classpath "com.android.tools.build:gradle:${androidGradleVersion}"
     }
 }
 
 allprojects {
     repositories {
+        jcenter()
         mavenCentral()
     }
 }

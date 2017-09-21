@@ -1,7 +1,7 @@
 package houtbecke.rs.injctr.base;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
+import android.app.DialogFragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,18 +13,18 @@ import javax.inject.Inject;
 import houtbecke.rs.injctr.InjctrUtil;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-public class InjctrFragment extends Fragment {
+public class InjctrDialogFragment extends DialogFragment {
 
     @Inject
     protected InjctrUtil injctrUtil;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         if (injctrUtil == null)
             injctrUtil = new InjctrUtil(getActivity().getApplicationContext(), getActivity().getResources());
 
         int viewId = injctrUtil.getFragmentLayout(this);
+
         View view;
         if (viewId != 0)
             view = inflater.inflate(viewId, container, false);
