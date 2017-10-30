@@ -5,7 +5,7 @@ android {
     buildToolsVersion "$buildToolsVersionProp"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion targetSdkVersionProp.toInteger()
         versionCode 1
         versionName "1.0"
