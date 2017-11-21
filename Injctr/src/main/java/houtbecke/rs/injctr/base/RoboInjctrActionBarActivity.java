@@ -44,7 +44,7 @@ public class RoboInjctrActionBarActivity extends RoboAppCompatActivity {
 
     protected void afterContentView() {
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(getApplicationContext(), getResources());
+            injctrUtil = new InjctrUtil(this, getResources());
 
         injctrUtil.injctrActivity(this);
     }
