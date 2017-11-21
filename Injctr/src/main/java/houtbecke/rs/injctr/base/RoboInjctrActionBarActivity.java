@@ -7,9 +7,8 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 import houtbecke.rs.injctr.InjctrUtil;
-import roboguice.activity.RoboActionBarActivity;
 
-public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
+public class RoboInjctrActionBarActivity extends RoboAppCompatActivity {
 
     @Inject
     protected InjctrUtil injctrUtil;
@@ -45,8 +44,9 @@ public class RoboInjctrActionBarActivity extends RoboActionBarActivity {
 
     protected void afterContentView() {
         if (injctrUtil == null)
-            injctrUtil = new InjctrUtil(this, getResources());
+            injctrUtil = new InjctrUtil(getApplicationContext(), getResources());
 
         injctrUtil.injctrActivity(this);
     }
+
 }
