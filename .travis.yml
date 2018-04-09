@@ -7,8 +7,11 @@ android:
   components:
     - tools # important to always do this first, since the version installed of platform-tools below depends on it
     - platform-tools
-    - build-tools-24.0.0
-    - android-24
+    - extra-android-m2repository
+    - extra-google-m2repository
+    - build-tools-27.0.3
+    - android-27
+
 
 env:
     global:
