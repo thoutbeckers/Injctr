@@ -413,8 +413,9 @@ public class InjctrUtil {
             }
             styleableInfoCache.put(styleableInfoKey, styleableInfo);
             return styleableInfo;
-        } catch (IllegalAccessException | ClassNotFoundException ignore) {
+        } catch (IllegalAccessException ignore) {
             // at this point we just assume reflection has failed us to find the styleables.
+        } catch (ClassNotFoundException ignore) {
         }
         styleableInfoCache.put(styleableInfoKey, null);
         return null;
