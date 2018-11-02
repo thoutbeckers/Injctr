@@ -30,9 +30,9 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:appcompat-v7:${supportVersion}"
+    implementation "androidx.appcompat:appcompat:${appCompatVersion}"
 
-    implementation 'org.apache.commons:commons-lang3:3.1'
+    implementation "org.apache.commons:commons-lang3:${apacheCommonsVersion}"
     compileOnly ("org.roboguice:roboguice:$roboGuiceVersion") {
         exclude group:"aopalliance"
         exclude group:"cglib"
